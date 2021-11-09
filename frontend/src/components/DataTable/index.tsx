@@ -1,6 +1,26 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
+import { SalePage } from 'types/Sale'
+import { formatLocalDate } from 'Utils/format';
+import { BASE_URL } from 'Utils/requests';
 
 export default function DataTable() {
+
+    const [page, setPage] = useState<SalePage>({
+        first: true,
+        number: 0,
+        totalElements: 0,
+        totalPages: 0,
+        last: true,
+    });
+
+    useEffect(() => {
+        axios.get(`${BASE_URL}/sales`)
+        .then(reponse => {
+            setPage(reponse.data);
+        })
+    }, [])
+
     return (
         <div className="table-responsive">
             <table className="table table-striped table-sm">
@@ -14,13 +34,15 @@ export default function DataTable() {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>22/04/2021</td>
-                        <td>Barry Allen</td>
-                        <td>34</td>
-                        <td>25</td>
-                        <td>15017.00</td>
+                    {page.content?.map(item => (
+                        <tr key={item.id}>
+                        <td>{formatLocalDate(item.date, "dd/MM/yyyy")}</td>
+                        <td>{item.seller.name}</td>
+                        <td>{item.visited}</td>
+                        <td>{item.deals}</td>
+                        <td>{item.amount}</td>
                     </tr>
+                    ))}
                 </tbody>
             </table>
         </div>
